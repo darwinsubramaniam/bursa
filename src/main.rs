@@ -26,12 +26,9 @@ async fn main() {
         let nodes = page_info.table_data(&page_doc);
 
         for node in nodes {
-            session_share_info.push(page_info.extract_data(&node));
+            let share_info = page_info.extract_data(&node);
+            session_share_info.push(share_info);
         }
-
-        println!(
-            "Total information found in the session are {}",
-            session_share_info.len()
-        );
     }
+
 }

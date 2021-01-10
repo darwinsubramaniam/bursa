@@ -1,5 +1,4 @@
-use reqwest::blocking;
-use reqwest::Result;
+use reqwest::{Result, get};
 use select::node::Node;
 use select::predicate::Name;
 use select::{document::Document, predicate::Attr};
@@ -52,8 +51,6 @@ impl PageInfo {
 
         page_url.set_query(Some(&query));
 
-        println!("url run in {}", page_url.as_str());
-
         page_url
     }
 
@@ -61,8 +58,6 @@ impl PageInfo {
     pub fn total_page<'a>(&self, doc: &'a Document) -> Result<i32> {
 
         let total = doc.find(Attr("id", "total_page")).last().unwrap();
-
-        println!("{:?}",total);
 
         let total = total.attr("data-val").unwrap().to_string();
 
@@ -80,7 +75,7 @@ impl PageInfo {
     pub async fn load(&self) -> Result<String> {
         let url = &self.page_url().to_string();
 
-        let page_html = blocking::get(url)?.text()?;
+        let page_html = get(url).await?.text().await?;
 
         Ok(page_html)
     }
