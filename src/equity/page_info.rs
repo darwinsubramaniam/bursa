@@ -106,11 +106,24 @@ impl PageInfo {
 
 #[cfg(test)]
 mod tests {
-    use crate::equity::page_info::Document;
+    use reqwest::blocking;
+    use serde_json::Value;
+
+    use crate::equity::{page_info::Document};
     use crate::equity::page_info::PageInfo;
     use crate::equity::page_info::PageShareInfo;
     use crate::equity::page_info::Url;
-    use std::fs;
+
+    fn get_equity_test_page() -> String{
+        let html = blocking::
+        get("https://gist.githubusercontent.com/darwinsubramaniam/6f027c2a6bce73783bf5a4c9071aa968/raw/f029e4b7b393c71071859d687d359e86b85265c8/equity.html")
+        .unwrap()
+        .text()
+        .unwrap();
+
+        html
+    }
+
 
     #[test]
     fn correct_new_page_url() {
@@ -124,8 +137,8 @@ mod tests {
 
     #[test]
     fn total_page_found() {
-        let test_html = fs::read_to_string("src/equity/test_asset/equity_page.html")
-        .unwrap();
+
+        let test_html = get_equity_test_page();
 
         let document = Document::from(test_html.as_str());
 
@@ -138,8 +151,8 @@ mod tests {
 
     #[test]
     fn table_can_be_found() {
-        let test_html = fs::read_to_string("src/equity/test_asset/equity_page.html")
-        .unwrap();
+
+        let test_html = get_equity_test_page();
 
         let document = Document::from(test_html.as_str());
 
@@ -152,9 +165,8 @@ mod tests {
 
     #[test]
     fn extract_share_basic_info() {
-        let test_html = fs::read_to_string("src/equity/test_asset/equity_page.html")
-        .unwrap();
 
+        let test_html = get_equity_test_page();
 
         let document = Document::from(test_html.as_str());
 
