@@ -1,7 +1,7 @@
 mod equity;
 mod company_profile;
 
-use std::time::Instant;
+use std::{convert::TryInto, time::Instant};
 
 use chrono::Duration;
 use company_profile::{chart_reading::ChartUrlContent, listed_company};
@@ -9,6 +9,7 @@ use equity::page_info;
 use listed_company::CompanyProfile;
 use page_info::{PageInfo, PageShareInfo};
 use select::document::Document;
+use pbr::ProgressBar;
 
 #[tokio::main]
 async fn main() {
@@ -23,7 +24,16 @@ async fn main() {
 
     let mut session_share_info: Vec<PageShareInfo> = Vec::new();
 
+    let mut progress_equity_page = ProgressBar::new(
+        total_page
+        .try_into()
+        .unwrap());
+
+    progress_equity_page.format("╢▌▌░╟");
+    println!("Start Equity Page Extraction");
+
     for page_number in 1..total_page {
+        progress_equity_page.inc();
         let page_info = PageInfo::new(page_number);
 
         let page_source = page_info.load().await.unwrap();
@@ -41,13 +51,24 @@ async fn main() {
         }
     }
 
+    progress_equity_page.finish_println("Complete Equity Page Extraction");
+
     let total_page_found_duration = start.elapsed();
 
     println!("Duration - Total Equity Table Extraction :: {:?} ", total_page_found_duration);
 
     let start = Instant::now();
 
+    let mut progress_company_info = ProgressBar::new(
+        session_share_info
+        .len()
+        .try_into()
+        .unwrap());
+
+    progress_company_info.format("╢▌▌░╟");
+
     for share_info in &session_share_info{
+        progress_company_info.inc();
         let company_profile = CompanyProfile::new(&share_info.stock_code);
 
         let company_profile_page = company_profile
@@ -62,20 +83,13 @@ async fn main() {
 
         let from_duration = Duration::weeks(53);
 
-        let chart = chart.get_chart_data_url(&from_duration);
+        let _chart = chart.get_chart_data_url(&from_duration);
 
-        let company_fullname = company_profile.company_fullname(&company_profile_doc);
-        let market = company_profile.market(&company_profile_doc);
-        let sector = company_profile.sector(&company_profile_doc);
-
-        println!("
-        Company: {} 
-        Market: {}
-        Sector: {}
-        Chart_URL: {}",
-        &company_fullname, &market,&sector,&chart.as_str());
+        let _company_fullname = company_profile.company_fullname(&company_profile_doc);
+        let _market = company_profile.market(&company_profile_doc);
+        let _sector = company_profile.sector(&company_profile_doc);
     }
-
+    progress_company_info.finish_println("Complete company profile extraction.");
     let total_company_profile_extraction = start.elapsed();
 
     println!("Total Execution Duration {:?}",total_company_profile_extraction)

@@ -68,8 +68,6 @@ impl ChartUrlContent {
 
         let fmt_date = from_date.format("%Y%m%d").to_string();
 
-        dbg!("{}",&fmt_date);
-
         let query = format!("stock_code={}&mode=historical&from_date={}&ws_a={}&ws_m={}",
          self.data_stock_code,
          &fmt_date,
