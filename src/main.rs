@@ -55,7 +55,18 @@ async fn main() {
 
         let chart = chart.get_chart_data_url(&from_duration);
 
-        println!("{}",&chart.as_str());
+        let company_fullname = company_profile.company_fullname(&company_profile_doc);
+        let market = company_profile.market(&company_profile_doc);
+        let sector = company_profile.market(&company_profile_doc);
+
+        println!("
+        Company: {} 
+        Market: {}
+        Sector: {}
+        Chart_URL: {}",
+        &company_fullname, &market,&sector,&chart.as_str());
+
+
 
     }
 
