@@ -1,6 +1,8 @@
 mod equity;
 mod company_profile;
 
+use std::time::Instant;
+
 use chrono::Duration;
 use company_profile::{chart_reading::ChartUrlContent, listed_company};
 use equity::page_info;
@@ -10,6 +12,7 @@ use select::document::Document;
 
 #[tokio::main]
 async fn main() {
+    let start = Instant::now();
     let first_page_info = PageInfo::new(1);
 
     let first_page_source = first_page_info.load().await.unwrap();
@@ -38,6 +41,12 @@ async fn main() {
         }
     }
 
+    let total_page_found_duration = start.elapsed();
+
+    println!("Duration - Total Equity Table Extraction :: {:?} ", total_page_found_duration);
+
+    let start = Instant::now();
+
     for share_info in &session_share_info{
         let company_profile = CompanyProfile::new(&share_info.stock_code);
 
@@ -65,9 +74,10 @@ async fn main() {
         Sector: {}
         Chart_URL: {}",
         &company_fullname, &market,&sector,&chart.as_str());
-
-
-
     }
+
+    let total_company_profile_extraction = start.elapsed();
+
+    println!("Total Execution Duration {:?}",total_company_profile_extraction)
 
 }
