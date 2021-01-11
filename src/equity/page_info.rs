@@ -13,14 +13,14 @@ pub struct PageInfo {
 
 #[derive(Debug)]
 pub struct PageShareInfo {
-    share_name: String,
-    share_code: String,
+    pub share_name: String,
+    pub stock_code: String,
 }
 
 impl PartialEq for PageShareInfo {
     fn eq(&self, other: &Self) -> bool {
         let same_name = self.share_name == other.share_name;
-        let same_code = self.share_code == other.share_code;
+        let same_code = self.stock_code == other.stock_code;
 
         same_name && same_code
     }
@@ -97,7 +97,7 @@ impl PageInfo {
 
         let result = PageShareInfo {
             share_name: share_name.text().trim().to_string(),
-            share_code: share_code.text().trim().to_string(),
+            stock_code: share_code.text().trim().to_string(),
         };
 
         result
@@ -107,7 +107,6 @@ impl PageInfo {
 #[cfg(test)]
 mod tests {
     use reqwest::blocking;
-    use serde_json::Value;
 
     use crate::equity::{page_info::Document};
     use crate::equity::page_info::PageInfo;
@@ -178,7 +177,7 @@ mod tests {
 
         let expected_item = PageShareInfo {
             share_name: String::from("AT [S]"),
-            share_code: String::from("0072"),
+            stock_code: String::from("0072"),
         };
 
         let result = page_info.extract_data(first_item);
