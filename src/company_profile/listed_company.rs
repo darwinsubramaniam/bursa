@@ -37,6 +37,7 @@ impl CompanyProfile{
         .unwrap()
     }
 
+    #[allow(dead_code)]
     pub fn company_fullname<'a>(&self, doc:&'a Document) -> String{
 
         let section_company_detail = doc
@@ -54,6 +55,7 @@ impl CompanyProfile{
         company_fullname
     }
 
+    #[allow(dead_code)]
     pub fn market(&self,doc:&Document) ->String{
         let section_company_detail = doc
         .find(Name("section"))
@@ -72,6 +74,7 @@ impl CompanyProfile{
         market
     }
 
+    #[allow(dead_code)]
     pub fn sector(&self,doc:&Document) ->String{
         let section_company_detail = doc
         .find(Name("section"))

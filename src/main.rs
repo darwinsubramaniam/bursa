@@ -57,7 +57,7 @@ async fn main() {
 
         let company_fullname = company_profile.company_fullname(&company_profile_doc);
         let market = company_profile.market(&company_profile_doc);
-        let sector = company_profile.market(&company_profile_doc);
+        let sector = company_profile.sector(&company_profile_doc);
 
         println!("
         Company: {} 
