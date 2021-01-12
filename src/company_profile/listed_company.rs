@@ -9,6 +9,15 @@ pub struct CompanyProfile{
     url:Url
 }
 
+// Extracted company information from
+// the company profile page.
+#[derive(Debug)]
+pub struct CompanyInformation{
+    pub name:String,
+    pub market:String,
+    pub sector:String,
+}
+
 impl CompanyProfile{
 
     #[allow(dead_code)]
@@ -37,32 +46,45 @@ impl CompanyProfile{
         .unwrap()
     }
 
-    #[allow(dead_code)]
-    pub fn company_fullname<'a>(&self, doc:&'a Document) -> String{
-
+    pub fn company_information<'a>(&self, doc:&'a Document) -> CompanyInformation{
         let section_company_detail = doc
         .find(Name("section"))
         .nth(1)
         .unwrap();
 
-        let company_fullname =section_company_detail
+        let name = self
+        .company_name(&section_company_detail);
+
+        let market =self
+        .market(&section_company_detail);
+
+        let sector =self
+        .sector(&section_company_detail);
+
+        CompanyInformation{
+            name,
+            market,
+            sector,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn company_name<'a>(&self, node:&'a Node) -> String{
+
+        let name =node
         .find(Class("text-center"))
         .nth(0).unwrap()
         .find(Name("h5"))
         .nth(0).unwrap()
         .text();
 
-        company_fullname
+        name
     }
 
     #[allow(dead_code)]
-    pub fn market(&self,doc:&Document) ->String{
-        let section_company_detail = doc
-        .find(Name("section"))
-        .nth(1)
-        .unwrap();
+    pub fn market(&self,node:&Node) ->String{
 
-        let market =section_company_detail
+        let market =node
         .find(Class("text-center"))
         .nth(1).unwrap()
         .text()
@@ -75,13 +97,9 @@ impl CompanyProfile{
     }
 
     #[allow(dead_code)]
-    pub fn sector(&self,doc:&Document) ->String{
-        let section_company_detail = doc
-        .find(Name("section"))
-        .nth(1)
-        .unwrap();
+    pub fn sector(&self,node:&Node) ->String{
 
-        let sector =section_company_detail
+        let sector =node
         .find(Class("text-center"))
         .nth(2).unwrap()
         .text()
@@ -104,31 +122,33 @@ mod test{
 
     fn load_test_page() -> String{
         blocking::get("https://gist.githubusercontent.com/darwinsubramaniam/52f4af8cf363e8940adbac7dc57f76b2/raw/05f700b3a552dbddd30c53c2d3599d364d3f395c/company_profile.html")
-        .unwrap().text().unwrap()
+        .unwrap()
+        .text()
+        .unwrap()
     }
 
     #[test]
     fn test_company_fullname(){
         let company:CompanyProfile = CompanyProfile::new("TestCode");
-        let company_name = company.company_fullname(&Document::from(load_test_page().as_str()));
+        let company_name = company.company_information(&Document::from(load_test_page().as_str()));
 
-        assert_eq!("AT SYSTEMATIZATION BERHAD",company_name);
+        assert_eq!("AT SYSTEMATIZATION BERHAD",company_name.name);
     }
 
     #[test]
     fn test_market_info(){
         let company:CompanyProfile = CompanyProfile::new("TestCode");
-        let market = company.market(&Document::from(load_test_page().as_str()));
+        let info = company.company_information(&Document::from(load_test_page().as_str()));
 
-        assert_eq!("ACE Market",market);
+        assert_eq!("ACE Market",info.market);
     }
 
     #[test]
     fn test_sector_info(){
         let company:CompanyProfile = CompanyProfile::new("TestCode");
-        let market = company.sector(&Document::from(load_test_page().as_str()));
+        let info = company.company_information(&Document::from(load_test_page().as_str()));
 
-        assert_eq!("INDUSTRIAL PRODUCTS & SERVICES",market);
+        assert_eq!("INDUSTRIAL PRODUCTS & SERVICES",info.sector);
     }
 
 
