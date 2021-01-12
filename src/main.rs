@@ -6,7 +6,7 @@ use std::{convert::TryInto, io, time::Instant};
 use chrono::Duration;
 use company_profile::{chart_reading::ChartUrlContent, listed_company};
 use equity::page_info;
-use listed_company::CompanyProfile;
+use listed_company::{CompanyInformation, CompanyProfile};
 use page_info::{PageInfo, PageShareInfo};
 use pbr::ProgressBar;
 use select::document::Document;
@@ -34,7 +34,8 @@ async fn main() {
     for page_number in 1..total_page {
         progress_equity_page.inc();
 
-        let thread: JoinHandle<Result<Vec<PageShareInfo>, io::Error>> = tokio::spawn(async move {
+        let thread: JoinHandle<Result<Vec<PageShareInfo>, io::Error>> = 
+        tokio::spawn(async move {
             let page_info = PageInfo::new(page_number);
 
             let page_source = page_info.load().await.unwrap();
@@ -78,11 +79,10 @@ async fn main() {
 
     progress_company_info.format("╢▌▌░╟");
 
-    let mut spawns: Vec<JoinHandle<Result<String, io::Error>>> = Vec::new();
+    let mut spawns: Vec<JoinHandle<Result<CompanyInformation, io::Error>>> = Vec::new();
     for share_info in session_share_info {
-       
-
-        let thread: JoinHandle<Result<String, io::Error>> = 
+        
+        let thread: JoinHandle<Result<CompanyInformation, io::Error>> = 
         tokio::spawn(async move {
             let company_profile = CompanyProfile::new(&share_info.stock_code);
 
@@ -98,17 +98,15 @@ async fn main() {
 
             let _chart = chart.get_chart_data_url(&from_duration);
 
-            let _company_fullname = company_profile.company_fullname(&company_profile_doc);
-            let _market = company_profile.market(&company_profile_doc);
-            let _sector = company_profile.sector(&company_profile_doc);
-            Ok(_company_fullname)
+            let info = company_profile.company_information(&company_profile_doc);
+            Ok(info)
         });
         spawns.push(thread);
     }
 
     for thread in spawns {
 
-        let results = thread.await.unwrap().unwrap();
+        let _results = thread.await.unwrap().unwrap();
         progress_company_info.inc();
     }
 
