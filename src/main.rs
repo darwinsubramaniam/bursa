@@ -81,7 +81,7 @@ async fn main() {
 
     let mut spawns: Vec<JoinHandle<Result<CompanyInformation, io::Error>>> = Vec::new();
     for share_info in session_share_info {
-        
+
         let thread: JoinHandle<Result<CompanyInformation, io::Error>> = 
         tokio::spawn(async move {
             let company_profile = CompanyProfile::new(&share_info.stock_code);

@@ -1,9 +1,11 @@
+//! Extract page information.
 use reqwest::{Result, get};
 use select::node::Node;
 use select::predicate::Name;
 use select::{document::Document, predicate::Attr};
 use url::Url;
 
+/// Page Information struct
 #[derive(Debug)]
 pub struct PageInfo {
     base_url: Url,
@@ -44,6 +46,7 @@ impl PageInfo {
         new_info
     }
 
+    /// Get the page url for of the next url.
     #[allow(dead_code)]
     pub fn page_url(&self) -> Url {
         let query = format!("per_page=50&page={}", self.page_number);
